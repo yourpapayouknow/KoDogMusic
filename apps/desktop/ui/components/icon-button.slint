@@ -1,0 +1,20 @@
+import { Theme } from "../theme.slint";
+// 圆形渐变立体按钮。
+export component IconButton inherits Rectangle {
+    in property <image> icon;
+    in property <color> ink: Theme.icon;
+    in property <int> kind: 0;
+    in property <length> icon-size: 22px;
+    in property <string> label;
+    callback clicked();
+    width: 30px; height: 30px; border-radius: self.width / 2;
+    property <length> press-y: area.pressed ? 1px : 0px;
+    // SVG绘制渐变与投影。
+    Image { x: -root.width * 8 / 76; y: self.x + root.press-y; width: root.width * 92 / 76; height: self.width;
+        source: root.kind == 2 ? @image-url("../assets/button-play.svg") : root.kind == 1 ? @image-url("../assets/button-transport.svg") : Theme.dark ? @image-url("../assets/button-dark.svg") : @image-url("../assets/button-light.svg"); }
+    Image { source: root.icon; colorize: root.ink; width: root.icon-size; height: root.icon-size; x: (parent.width - self.width)/2; y: (parent.height - self.height)/2 + root.press-y; }
+    area := TouchArea { mouse-cursor: pointer; clicked => { root.clicked(); } }
+    Tooltip { text: @markdown("\{root.label}"); }
+    accessible-role: button; accessible-label: label;
+    accessible-action-default => { root.clicked(); }
+}

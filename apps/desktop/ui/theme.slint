@@ -1,0 +1,30 @@
+import { Palette } from "std-widgets.slint";
+// 主题仅切换调色板。
+export global Theme {
+    in-out property <int> mode: 0;
+    out property <bool> dark: mode == 2 || (mode == 0 && Palette.color-scheme == ColorScheme.dark);
+    out property <color> bg: dark ? #20272c : #f1ebe5;
+    out property <color> card: dark ? #2b363f : #f7f3ee;
+    out property <color> card-hi: dark ? #313e48 : #faf7f3;
+    out property <color> ink: dark ? #e7eef2 : #102f40;
+    out property <color> muted: dark ? #b6c2ca : #525f69;
+    out property <color> icon: dark ? #d2dce2 : #4a5660;
+    out property <color> edge: dark ? #42505c : #ffffff;
+    out property <color> lip: dark ? #151c22 : #d5cdc3;
+        out property <color> rail: dark ? #1d252b : #e2dbd2;
+    out property <color> hover: dark ? #323f49 : #f0eae2;
+    out property <color> rail-edge: dark ? #12181d : #cbc2b7;
+    out property <color> btn: dark ? #374550 : #f3eee8;
+    out property <color> active: #00b5d4;
+    out property <color> cyan-btn: dark ? #00a2be : #00aac7;
+    out property <color> cyan-edge: dark ? #3ecbe3 : #6be0f2;
+    out property <color> cyan-lip: dark ? #006c80 : #007d94;
+    out property <color> on-active: #093743;
+    out property <color> on-orange: #422716;
+    out property <color> signal: dark ? #1bc5dc : #007f98;
+    out property <color> header: dark ? #161e24 : #dcd5cd;
+    out property <color> tab: dark ? #303d46 : #e6dfd7;
+    out property <color> orange: #ff925b;
+    out property <color> orange-edge: #ffc3a4;
+    out property <color> orange-lip: #c4612f;
+    }

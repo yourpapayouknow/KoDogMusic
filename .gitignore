@@ -1,0 +1,45 @@
+# Build artifacts
+target/
+*.exe
+*.pdb
+*.dll
+*.so
+*.dylib
+
+# Third-party reference repositories
+/reference/
+/refrence/
+
+# Scratch & temporary files
+/scratch/
+*.log
+temp/
+
+# SQLite & runtime storage
+*.db
+*.db-wal
+*.db-shm
+secrets.dat
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Local launch script
+launchclaude.ps1
+
+# Local development artifacts
+.claude/
+.agents/
+.codex/
+.penpot/
+history/
+skills-lock.json
+launchclaude*.ps1

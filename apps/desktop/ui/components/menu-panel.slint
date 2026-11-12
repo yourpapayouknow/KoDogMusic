@@ -1,0 +1,14 @@
+import { Theme } from "../theme.slint";
+
+// 菜单单层卡片外壳。
+export component MenuPanel inherits Rectangle {
+    Rectangle {
+        y: 2px; width: parent.width; height: parent.height; border-radius: 8px;
+        background: Theme.lip;
+    }
+    Rectangle {
+        width: parent.width; height: parent.height; border-radius: 8px;
+        background: Theme.card; border-width: 1px; border-color: Theme.edge;
+        @children
+    }
+}

@@ -1,0 +1,31 @@
+import { Theme } from "../theme.slint";
+
+// 共用圆形图标按钮。
+export component RoundIcon inherits Rectangle {
+    in property <image> icon;
+    in property <color> ink: Theme.ink;
+    in property <color> hover-ink: root.ink;
+    in property <length> size: 24px;
+    in property <length> icon-size: 14px;
+    in property <string> label: "";
+    in property <bool> enabled: true;
+    out property <bool> hovered: area.has-hover;
+    callback clicked();
+    width: root.size; height: root.size;
+    Rectangle {
+        y: 1px; width: root.size; height: root.size; border-radius: root.size / 2;
+        background: Theme.lip;
+    }
+    Rectangle {
+        y: area.pressed ? 1px : 0px; width: root.size; height: root.size; border-radius: root.size / 2;
+        background: Theme.btn; border-width: 1px; border-color: Theme.edge;
+        Image {
+            x: (root.size - root.icon-size) / 2; y: (root.size - root.icon-size) / 2;
+            width: root.icon-size; height: root.icon-size;
+            source: root.icon; colorize: area.has-hover ? root.hover-ink : root.ink;
+        }
+    }
+    area := TouchArea { enabled: root.enabled; mouse-cursor: root.enabled ? pointer : default; clicked => { root.clicked(); } }
+    accessible-role: button; accessible-label: root.label;
+    accessible-action-default => { if root.enabled { root.clicked(); } }
+}

@@ -1,0 +1,27 @@
+[package]
+name = "kugou-lite"
+description = "Lightweight native Windows Kugou client using software rendering"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "kugou-lite"
+path = "src/main.rs"
+
+[dependencies]
+kugou-core.workspace = true
+slint.workspace = true
+unicode-segmentation.workspace = true
+raw-window-handle.workspace = true
+windows-sys.workspace = true
+qrcode.workspace = true
+image.workspace = true
+
+[build-dependencies]
+slint-build.workspace = true
+
+[dev-dependencies]
+# Enable the existing renderer's cache eviction test hook.
+i-slint-renderer-software = { version = "=1.18.1", features = ["testing"] }

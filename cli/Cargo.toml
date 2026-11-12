@@ -1,0 +1,15 @@
+[package]
+name = "kgctl"
+description = "Command-line diagnosis and automation tool for kugou-lite"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "kgctl"
+path = "src/main.rs"
+
+[dependencies]
+kugou-core.workspace = true
+clap.workspace = true

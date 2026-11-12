@@ -1,0 +1,343 @@
+[
+  {
+    "kind": "录音室专辑",
+    "name": "叶惠美",
+    "public_id": "966846",
+    "tracks": [
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "dbc0207490eb51153ef933ef5a7e98e4"
+        },
+        "title": "以父之名",
+        "artist_text": "周杰伦",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230920/20230920142503632013.jpg",
+        "duration_ms": 342047
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "db9a93eaaf26738e7e76043b29e6fbb7"
+        },
+        "title": "懦夫",
+        "artist_text": "周杰伦",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230920/20230920142503632013.jpg",
+        "duration_ms": 218044
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "b3a52a7a958bf0aed0ebfba2e9a818b7"
+        },
+        "title": "晴天",
+        "artist_text": "周杰伦",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230920/20230920142503632013.jpg",
+        "duration_ms": 269000
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "b8f7ad16f90b4f0986616442d90a9d07"
+        },
+        "title": "三年二班",
+        "artist_text": "周杰伦",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230920/20230920142503632013.jpg",
+        "duration_ms": 280424
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "b24ab4ad67a1e7228121180247503e84"
+        },
+        "title": "东风破",
+        "artist_text": "周杰伦",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230920/20230920142503632013.jpg",
+        "duration_ms": 315454
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "d7f42691cb6134ba8aa247f0a1dbd060"
+        },
+        "title": "你听得到",
+        "artist_text": "周杰伦",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230920/20230920142503632013.jpg",
+        "duration_ms": 230000
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "d9dbe9dbf59af2ce357a0c2a8ea59647"
+        },
+        "title": "同一种调调",
+        "artist_text": "周杰伦",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230920/20230920142503632013.jpg",
+        "duration_ms": 231026
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "cddd15ca84029993171179d51b40e0f1"
+        },
+        "title": "她的睫毛",
+        "artist_text": "周杰伦",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230920/20230920142503632013.jpg",
+        "duration_ms": 232933
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "3d069092b3a262dcfa9ed489d22f9296"
+        },
+        "title": "爱情悬崖",
+        "artist_text": "周杰伦",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230920/20230920142503632013.jpg",
+        "duration_ms": 262243
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "5ffa6cf20b977cba7cc465b7b8c8b152"
+        },
+        "title": "梯田",
+        "artist_text": "周杰伦",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230920/20230920142503632013.jpg",
+        "duration_ms": 213394
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "393716a06ab0a9ffb89520ac17962652"
+        },
+        "title": "双刀",
+        "artist_text": "周杰伦",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230920/20230920142503632013.jpg",
+        "duration_ms": 291448
+      }
+    ]
+  },
+  {
+    "kind": "单曲专辑",
+    "name": "暮色回响",
+    "public_id": "97939899",
+    "tracks": [
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "997f31985dddd0c353a0f680b7b95dfc"
+        },
+        "title": "暮色回响",
+        "artist_text": "张韶涵",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20250220/20250220181402301871.jpg",
+        "duration_ms": 181420
+      }
+    ]
+  },
+  {
+    "kind": "歌单",
+    "name": "港式R&B | 坚尼地城的夕阳时分",
+    "public_id": "collection_3_663970080_1498_0",
+    "tracks": [
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "7d60971d4fcbb3e2ea9869b55af23097"
+        },
+        "title": "咖啡因万岁",
+        "artist_text": "侧田",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20250101/20250101112735865545.jpg",
+        "duration_ms": 274729
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "84ea9863a182be3ac66ec16d6c403ba7"
+        },
+        "title": "一加一 (剧场版|特别旁白Eason Chan)",
+        "artist_text": "AGA、李幸倪、陈奕迅",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20240223/20240223102802219177.jpg",
+        "duration_ms": 272796
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "47be054a527ad82565141e8adf226dd0"
+        },
+        "title": "回忆半分钟",
+        "artist_text": "云浩影",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20240115/20240115130404361300.jpg",
+        "duration_ms": 226821
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "86a6d4e2bbcdea98f8b1d62948b961d6"
+        },
+        "title": "冬天一个游",
+        "artist_text": "Gordon Flanders",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20251209/20251209100426866282.jpg",
+        "duration_ms": 254197
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "83ca90e97f2117298233e3be13b5455a"
+        },
+        "title": "笑住喊",
+        "artist_text": "Gareth.T",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20221021/20221021011627911873.jpg",
+        "duration_ms": 200228
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "1d990c333df0bfac63b048d52c74be01"
+        },
+        "title": "报复式浪漫",
+        "artist_text": "冯允谦、moon tang",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20220328/20220328102302584809.jpg",
+        "duration_ms": 219088
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "a633cd059f5b1894e1b34833dbc1c44c"
+        },
+        "title": "TVB (粤语版)",
+        "artist_text": "白浩贤",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20231215/20231215160601890039.jpg",
+        "duration_ms": 164963
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "5b11c9068dd89353b94551a78c87e606"
+        },
+        "title": "I CAN GET WHAT I WANT",
+        "artist_text": "Lewsz、张蔓姿",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230228/20230228173503882791.jpg",
+        "duration_ms": 202448
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "3766a7ea37ad0c5ecb712b21c769d288"
+        },
+        "title": "My Secret Park",
+        "artist_text": "洪嘉豪",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230213/20230213095508446630.jpg",
+        "duration_ms": 196388
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "88cef39d2ef23664afc652f115a77477"
+        },
+        "title": "Calling Now",
+        "artist_text": "TomFatKi",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20231010/20231010155501635853.jpg",
+        "duration_ms": 191242
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "edf1422a11422a9c001a9f60c783e7ca"
+        },
+        "title": "哮喘",
+        "artist_text": "Billy Choi、TomFatKi",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20231010/20231010155401599919.jpg",
+        "duration_ms": 176875
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "b6b902a3a9fe6d3e02ce27de7b4d545d"
+        },
+        "title": "Too Good To Be",
+        "artist_text": "云浩影",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20240325/20240325144433718759.jpg",
+        "duration_ms": 187036
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "9c4dabe97d467249f7ea12e7401f4946"
+        },
+        "title": "万人邂逅",
+        "artist_text": "JC 陈咏桐",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230919/20230919142105504180.jpg",
+        "duration_ms": 238158
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "9fce445d867868d3a5b23c98bad547c4"
+        },
+        "title": "过电",
+        "artist_text": "张蔓姿",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20240219/20240219165702936029.jpg",
+        "duration_ms": 157100
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "375c8063b6da44f1b204913b1324a625"
+        },
+        "title": "You took my breath away",
+        "artist_text": "Nancy Kwai",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20240201/20240201000904456886.jpg",
+        "duration_ms": 184999
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "e57f0c2cd00d0200aa5f0070d146041f"
+        },
+        "title": "y2k 还衬我么?",
+        "artist_text": "钟柔美",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230718/20230718121302690632.jpg",
+        "duration_ms": 176796
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "f37790a17a6c1c904a5a16f27b8a93b0"
+        },
+        "title": "顺风车",
+        "artist_text": "古巨基、云浩影",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20230801/20230801181201242841.jpg",
+        "duration_ms": 216816
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "be2c52cfc71296f383ee67e29e0e5673"
+        },
+        "title": "Only For Me",
+        "artist_text": "炎明熹",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20231006/20231006141402905441.jpg",
+        "duration_ms": 210128
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "c2816acdd7544e087bc74e328d61978a"
+        },
+        "title": "黄昏点唱机",
+        "artist_text": "容祖儿、林海峰",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20160909/20160909011642852466.jpg",
+        "duration_ms": 205871
+      },
+      {
+        "id": {
+          "provider": "Kugou",
+          "raw_id": "c506d9369f9e15e02890ad703fdaa4d6"
+        },
+        "title": "黛玉笑了 (Live)",
+        "artist_text": "泳儿",
+        "cover_key": "http://imge.kugou.com/stdmusic/480/20250101/20250101092511130654.jpg",
+        "duration_ms": 230426
+      }
+    ]
+  }
+]

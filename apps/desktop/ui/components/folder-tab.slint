@@ -1,0 +1,49 @@
+import { Theme } from "../theme.slint";
+
+// 标签抬升并连接内容。
+export component FolderTab inherits Rectangle {
+    in property <string> text;
+    in property <bool> selected;
+    in property <int> index;
+    callback clicked();
+    property <float> lift: selected ? 1 : 0;
+    animate lift { duration: 180ms; easing: ease-in-out; }
+    x: 146px + index * 52px - lift * 4px;
+    y: 14px - lift * 9px;
+    width: 64px + lift * 8px;
+    height: 28px + lift * 11px;
+    // 路径无底边且下探。
+    Path {
+        width: parent.width; height: parent.height;
+        viewbox-width: root.width / 1px; viewbox-height: root.height / 1px;
+        fill: root.selected ? Theme.bg : Theme.tab;
+        MoveTo { x: 0; y: root.height / 1px; }
+        LineTo { x: 0; y: 6; }
+        CubicTo { control-1-x: 0; control-1-y: 2.7; control-2-x: 2.7; control-2-y: 0; x: 6; y: 0; }
+        LineTo { x: root.width / 1px - 20; y: 0; }
+        CubicTo { control-1-x: root.width / 1px - 16; control-1-y: 0; control-2-x: root.width / 1px - 15; control-2-y: 2; x: root.width / 1px - 13; y: 6; }
+        LineTo { x: root.width / 1px - 4; y: root.height / 1px - 5; }
+        CubicTo { control-1-x: root.width / 1px - 3; control-1-y: root.height / 1px - 2; control-2-x: root.width / 1px - 2; control-2-y: root.height / 1px; x: root.width / 1px; y: root.height / 1px; }
+        Close {}
+    }
+    Path {
+        width: parent.width; height: parent.height;
+        viewbox-width: root.width / 1px; viewbox-height: root.height / 1px;
+        fill: transparent; stroke: Theme.edge; stroke-width: 0.8px;
+        MoveTo { x: 0.5; y: root.height / 1px; }
+        LineTo { x: 0.5; y: 6; }
+        CubicTo { control-1-x: 0.5; control-1-y: 2.7; control-2-x: 2.7; control-2-y: 0.5; x: 6; y: 0.5; }
+        LineTo { x: root.width / 1px - 20; y: 0.5; }
+        CubicTo { control-1-x: root.width / 1px - 16; control-1-y: 0.5; control-2-x: root.width / 1px - 15; control-2-y: 2; x: root.width / 1px - 13; y: 6; }
+        LineTo { x: root.width / 1px - 4; y: root.height / 1px - 5; }
+    }
+    Text {
+        x: 6px; y: 0px; width: round((parent.width - 14px)/1px)*1px; height: round((parent.height - 2px)/1px)*1px;
+        text: root.text; color: root.selected ? Theme.ink : Theme.muted;
+        font-size: root.selected ? 13px : 12px; font-weight: root.selected ? 700 : 400;
+        horizontal-alignment: center; vertical-alignment: center;
+    }
+    TouchArea { mouse-cursor: pointer; clicked => { root.clicked(); } }
+    accessible-role: tab; accessible-label: text; accessible-item-selected: selected;
+    accessible-action-default => { root.clicked(); }
+}
