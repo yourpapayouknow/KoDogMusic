@@ -1,0 +1,31 @@
+import { Theme } from "../theme.slint";
+
+// 弹窗遮罩与卡片外壳。
+export component DialogCard inherits Rectangle {
+    in property <string> title;
+    in property <length> card-x: 42px;
+    in property <length> card-y: 170px;
+    in property <length> card-w: 276px;
+    in property <length> card-h: 132px;
+    callback dismissed();
+    callback card-clicked();
+    background: #00000055;
+    TouchArea { clicked => { root.dismissed(); } }
+    Rectangle {
+        x: root.card-x; y: root.card-y; width: root.card-w; height: root.card-h;
+        Rectangle {
+            y: 2px; width: parent.width; height: parent.height; border-radius: 8px;
+            background: Theme.lip;
+        }
+        Rectangle {
+            width: parent.width; height: parent.height; border-radius: 8px;
+            background: Theme.card; border-width: 1px; border-color: Theme.edge;
+            TouchArea { clicked => { root.card-clicked(); } }
+            Text {
+                x: 16px; y: 12px; width: parent.width - 32px; height: 20px;
+                text: root.title; color: Theme.ink; font-size: 14px; font-weight: 600; overflow: elide;
+            }
+            @children
+        }
+    }
+}

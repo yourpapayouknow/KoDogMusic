@@ -1,0 +1,887 @@
+import { Theme } from "theme.slint";
+import { TrackItem, PlaylistItem, AddPlaylistItem, QualityItem, MediaArt } from "models.slint";
+import { FolderTab } from "components/folder-tab.slint";
+import { IconButton } from "components/icon-button.slint";
+import { SeekBar } from "components/seek-bar.slint";
+import { RoundIcon } from "components/round-icon.slint";
+import { MenuPanel } from "components/menu-panel.slint";
+import { DialogCard } from "components/dialog-card.slint";
+import { ListView } from "std-widgets.slint";
+export { Theme, TrackItem, PlaylistItem, AddPlaylistItem, QualityItem, MediaArt }
+
+// 纯文字项共用命中区。
+component TextButton inherits Rectangle {
+    in property <string> text;
+    in property <color> ink: Theme.ink;
+    in property <length> size: 11px;
+    in property <int> weight: 400;
+    in property <bool> hover-pill: false;
+    in property <bool> enabled: true;
+    callback clicked();
+    Rectangle {
+        visible: root.hover-pill && area.has-hover && root.enabled;
+        border-radius: 4px;
+        background: Theme.hover;
+    }
+    Text { width: parent.width; height: parent.height; y: area.pressed && root.enabled ? 1px : 0px; text: root.text; color: root.ink; opacity: root.enabled ? 1.0 : 0.45; font-size: root.size; font-weight: root.weight; horizontal-alignment: center; vertical-alignment: center; }
+    area := TouchArea { enabled: root.enabled; mouse-cursor: root.enabled ? pointer : default; clicked => { root.clicked(); } }
+    accessible-role: button; accessible-label: text;
+    accessible-action-default => { if root.enabled { root.clicked(); } }
+}
+
+// 中性/青蓝/暖橙胶囊按钮。
+component PillButton inherits Rectangle {
+    in property <string> text;
+    in property <int> kind: 0;
+    in property <bool> enabled: true;
+    in property <length> size: 11px;
+    in property <int> weight: 600;
+    callback clicked();
+    property <bool> down: area.pressed && root.enabled;
+    Rectangle {
+        y: 1.5px; width: parent.width; height: parent.height;
+        border-radius: parent.height / 2;
+        background: root.kind == 1 ? Theme.cyan-lip : root.kind == 2 ? Theme.orange-lip : Theme.lip;
+        opacity: root.down ? 0.4 : 0.85;
+    }
+    Rectangle {
+        y: root.down ? 1px : 0px;
+        width: parent.width; height: parent.height;
+        border-radius: parent.height / 2;
+        background: root.kind == 1 ? Theme.cyan-btn : root.kind == 2 ? Theme.orange : Theme.btn;
+        border-width: 1px;
+        border-color: root.kind == 1 ? Theme.cyan-edge : root.kind == 2 ? Theme.orange-edge : Theme.edge;
+    }
+    Text {
+        width: parent.width; height: parent.height;
+        y: root.down ? 1px : 0px;
+        text: root.text;
+        color: root.kind == 1 ? Theme.on-active : root.kind == 2 ? Theme.on-orange : Theme.ink;
+        opacity: root.enabled ? 1.0 : 0.55;
+        font-size: root.size;
+        font-weight: root.weight;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    area := TouchArea { enabled: root.enabled; mouse-cursor: root.enabled ? pointer : default; clicked => { root.clicked(); } }
+    accessible-role: button; accessible-label: text;
+    accessible-action-default => { if root.enabled { root.clicked(); } }
+}
+
+// 凹槽底座与青蓝选中。
+component Segment inherits Rectangle {
+    in property <[string]> labels;
+    in property <int> selected;
+    callback picked(int);
+    width: 185px; height: 26px; border-radius: 13px;
+    background: Theme.rail; border-width: 1px; border-color: Theme.rail-edge;
+    for label[index] in root.labels : Rectangle {
+        x: index * 61px + 1px; y: 1px; width: 61px; height: 24px;
+        if index == root.selected : Rectangle {
+            y: 1px; width: parent.width; height: parent.height; border-radius: 12px;
+            background: Theme.cyan-lip;
+        }
+        if index == root.selected : Rectangle {
+            width: parent.width; height: parent.height; border-radius: 12px;
+            background: Theme.cyan-btn; border-width: 1px; border-color: Theme.cyan-edge;
+        }
+        Text {
+            width: parent.width; height: parent.height;
+            text: label;
+            color: index == root.selected ? Theme.on-active : Theme.muted;
+            font-size: 10px;
+            font-weight: index == root.selected ? 600 : 400;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+        TouchArea { mouse-cursor: pointer; clicked => { root.picked(index); } }
+        accessible-role: button; accessible-label: label;
+        accessible-action-default => { root.picked(index); }
+    }
+}
+
+// 凹槽滑道与立体圆钮。
+component Switch inherits Rectangle {
+    in property <bool> checked;
+    in property <string> label;
+    in property <string> tip: "";
+    callback toggled();
+    width: 40px; height: 22px; border-radius: 11px;
+    background: root.checked ? Theme.cyan-btn : Theme.rail;
+    border-width: 1px;
+    border-color: root.checked ? Theme.cyan-lip : Theme.rail-edge;
+    Rectangle {
+        x: root.checked ? 19px : 1px; y: 2px; width: 20px; height: 20px; border-radius: 10px;
+        background: root.checked ? Theme.cyan-lip : Theme.lip;
+        animate x { duration: 120ms; easing: ease-in-out; }
+    }
+    Rectangle {
+        x: root.checked ? 19px : 1px; y: 1px; width: 20px; height: 20px; border-radius: 10px;
+        background: #ffffff; border-width: 1px; border-color: Theme.dark ? #cfd8df : #ffffff;
+        animate x { duration: 120ms; easing: ease-in-out; }
+    }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.toggled(); }
+        if root.tip != "" : Tooltip {
+            Rectangle {
+                width: 150px; height: 24px; background: Theme.card; border-radius: 4px; border-width: 1px; border-color: Theme.edge;
+                Text { text: root.tip; color: Theme.ink; font-size: 11px; horizontal-alignment: center; vertical-alignment: center; overflow: elide; }
+            }
+        }
+    }
+    accessible-role: checkbox; accessible-label: label; accessible-checked: checked;
+    accessible-action-default => { root.toggled(); }
+}
+
+// 共用歌曲行，搜索行禁播。
+component TrackRow inherits Rectangle {
+    in property <TrackItem> track;
+    in property <int> index;
+    in property <int> scope;
+    in property <bool> active;
+    in property <bool> in-like: false;
+    callback action(int, length);
+    height: 46px;
+    Rectangle {
+        x: 0; y: 3px; height: 40px; width: parent.width; border-radius: 8px;
+        background: Theme.lip;
+    }
+    Rectangle {
+        x: 0; y: 2px; height: 40px; width: parent.width; border-radius: 8px;
+        background: root.active ? (Theme.dark ? #244757 : #ddf0f7) : Theme.card;
+        border-width: 1px;
+        border-color: root.active ? (Theme.dark ? #3a758d : #ffffff) : Theme.edge;
+        if root.scope == 1 && !root.active : Text { x: 4px; y: 0px; width: 14px; height: 40px; text: "" + (root.index+1); font-size: 10px; color: Theme.muted; horizontal-alignment: center; vertical-alignment: center; }
+        if root.scope == 1 && root.active : Rectangle { x: 5px; y: 12px; width: 11px; height: 16px; for h[i] in [9px, 14px, 11px] : Rectangle { x: i*4px; y: 14px-h; width: 2px; height: h; border-radius: 1px; background: Theme.active; } }
+        Rectangle { x: root.scope == 1 ? 20px : 4px; y: 2px; width: 36px; height: 36px; clip: true; border-radius: 10px; border-width: 1px; border-color: Theme.edge; Image { width: parent.width; height: parent.height; source: MediaArt.cover(root.track.cover, 80, MediaArt.epoch); image-fit: cover; } }
+        Text { x: root.scope == 1 ? 64px : 48px; y: 3px; width: root.scope == 1 ? 170px : 194px; height: 18px; text: root.track.title; color: Theme.ink; font-size: 13px; font-weight: 600; overflow: elide; }
+        Text { x: root.scope == 1 ? 64px : 48px; y: 21px; width: 170px; height: 15px; text: root.track.artist; color: Theme.muted; font-size: 11px; overflow: elide; }
+        if root.scope != 2 : TouchArea { x: 0; y: 0; height: 40px; width: parent.width - 74px; mouse-cursor: pointer; clicked => { root.action(0, self.absolute-position.y); } }
+        if root.scope == 1 : Text { x: parent.width - 70px; width: 37px; height: 40px; text: root.track.duration; color: Theme.muted; font-size: 11px; font-family: "Segoe UI"; vertical-alignment: center; }
+        if root.scope != 1 : RoundIcon {
+            x: parent.width - 61px; y: 8px;
+            icon: root.scope == 2 ? @image-url("assets/icons/add.svg") : root.in-like ? @image-url("assets/icons/heart_red.svg") : @image-url("assets/icons/play_white.svg");
+            ink: root.scope == 2 ? Theme.signal : root.in-like ? (Theme.dark ? #ff8190 : #cc4660) : Theme.signal;
+            label: root.scope == 2 ? "添加" : root.in-like ? "取消喜欢" : "播放";
+            clicked => { root.action(root.scope == 2 ? 7 : root.in-like ? 3 : 0, self.absolute-position.y); }
+        }
+        RoundIcon {
+            x: parent.width - 31px; y: 8px;
+            icon: @image-url("assets/icons/more.svg");
+            label: "更多";
+            clicked => { root.action(5, self.absolute-position.y); }
+        }
+    }
+}
+
+// 收藏页一级歌单卡片行。
+component PlaylistRow inherits Rectangle {
+    in property <PlaylistItem> item;
+    callback clicked();
+    callback delete();
+    height: 46px;
+    Rectangle { x: 0; y: 3px; height: 40px; width: parent.width; border-radius: 8px; background: Theme.lip; }
+    Rectangle {
+        x: 0; y: 2px; height: 40px; width: parent.width; border-radius: 8px;
+        background: Theme.card; border-width: 1px; border-color: Theme.edge;
+        Rectangle {
+            x: 4px; y: 2px; width: 36px; height: 36px; clip: true; border-radius: 10px;
+            background: root.item.is-like ? #e66176 : Theme.rail;
+            border-width: 1px; border-color: Theme.edge;
+            if root.item.cover != "" : Image { width: parent.width; height: parent.height; source: MediaArt.cover(root.item.cover, 80, MediaArt.epoch); image-fit: cover; }
+            if root.item.cover == "" : Image { x: 9px; y: 9px; width: 18px; height: 18px; source: root.item.is-like ? @image-url("assets/icons/heart_red.svg") : @image-url("assets/icons/playlist_gray.svg"); colorize: root.item.is-like ? #ffffff : Theme.icon; }
+        }
+        Text { x: 48px; y: 3px; width: 224px; height: 18px; text: root.item.name; color: Theme.ink; font-size: 13px; font-weight: 600; overflow: elide; }
+        Text { x: 48px; y: 21px; width: 224px; height: 15px; text: root.item.count; color: Theme.muted; font-size: 11px; overflow: elide; }
+        TouchArea { mouse-cursor: pointer; clicked => { root.clicked(); } }
+        if !root.item.is-like : RoundIcon {
+            x: parent.width - 28px; y: 8px; icon-size: 12px;
+            icon: @image-url("assets/icons/close_dark.svg");
+            ink: Theme.muted; hover-ink: #cc4660; label: "删除歌单";
+            clicked => { root.delete(); }
+        }
+    }
+}
+
+// 弹窗勾选行（无嵌套）。
+component CheckRow inherits Rectangle {
+    in property <string> label;
+    in property <bool> checked;
+    callback toggled();
+    height: 32px;
+    Rectangle {
+        width: parent.width; height: 31px;
+        background: row-ta.has-hover ? Theme.hover : transparent;
+        border-radius: 4px;
+        Rectangle {
+            x: 6px; y: 7px; width: 17px; height: 17px; border-radius: 4px;
+            background: root.checked ? Theme.cyan-btn : Theme.rail;
+            border-width: 1px; border-color: root.checked ? Theme.cyan-edge : Theme.rail-edge;
+            if root.checked : Image { x: 2px; y: 2px; width: 13px; height: 13px; source: @image-url("assets/icons/check.svg"); colorize: #ffffff; }
+        }
+        Text { x: 30px; y: 0px; width: parent.width - 36px; height: 31px; text: root.label; color: Theme.ink; font-size: 12px; vertical-alignment: center; overflow: elide; }
+        row-ta := TouchArea { mouse-cursor: pointer; clicked => { root.toggled(); } }
+    }
+}
+
+// 基准图固定槽位组件。
+export component AppWindow inherits Window {
+    title: "KoDog Lite"; no-frame: true; width: 360px; height: 480px;
+    background: Theme.bg; default-font-family: "Microsoft YaHei UI"; default-font-size: 12px;
+    forward-focus: park;
+    in-out property <int> active-route;
+    in property <string> user-name: "未登录";
+    in property <string> avatar-url;
+    in property <bool> is-guest: true;
+    in property <string> checkin-label: "签到";
+    in property <string> track-title: "尚未播放";
+    in property <string> artist-name;
+    in property <bool> is-playing;
+    in property <bool> is-favorite;
+    in property <int> repeat-mode;
+    in property <int> queue-cursor: -1;
+    in property <image> coverflow-image;
+    in property <int> position-ms;
+    in property <int> duration-ms;
+    in property <float> volume: 0.5;
+    in property <[TrackItem]> queue-tracks;
+    in property <[TrackItem]> search-tracks;
+    in property <[TrackItem]> favorite-tracks;
+    in property <[PlaylistItem]> user-playlists;
+    in property <bool> playlist-opened;
+    in property <string> opened-playlist-title;
+    in property <bool> opened-playlist-is-like;
+    in property <bool> current-deck-removable;
+    in property <string> current-deck-title;
+    in property <bool> current-collection-is-album;
+    in property <bool> current-has-collection;
+    in property <bool> favorites-local;
+    in property <bool> busy;
+    in property <int> theme-idx;
+    in property <int> quality-idx: 1;
+    in property <bool> close-tray: true;
+    in property <bool> desktop-lyrics;
+    in property <bool> shuffle;
+    in property <string> cache-dir;
+    in property <string> download-dir;
+    in property <string> notice;
+    in property <image> qr-image;
+    in property <string> qr-label;
+    in-out property <int> menu-scope;
+    in-out property <bool> menu-has-album: true;
+    in-out property <int> menu-index: -1;
+    in-out property <length> menu-y: 58px;
+    in-out property <int> folder-kind: -1;
+    property <bool> path-error;
+    // 添加至两级弹窗状态
+    in-out property <int> add-choice-idx: -1;
+    in-out property <length> add-choice-y: 120px;
+    in-out property <bool> add-choice-has-album;
+    in-out property <bool> add-modal-visible;
+    in property <string> add-modal-title;
+    in-out property <bool> add-sel-flow;
+    in-out property <bool> add-sel-like;
+    in-out property <[AddPlaylistItem]> add-playlists;
+    in-out property <bool> creating-playlist;
+    in-out property <int> pick-mode;
+    in-out property <int> pick-selected: -1;
+    // 专辑视图页
+    in property <bool> album-open;
+    in property <string> album-title;
+    in property <[TrackItem]> album-tracks;
+    // 取消收藏确认框
+    in property <string> confirm-unlike-text;
+    // 下载品质两级弹窗
+    in-out property <bool> dl-choice-open;
+    in-out property <bool> dl-modal-visible;
+    in property <string> dl-modal-title;
+    in-out property <[QualityItem]> dl-qualities;
+    in-out property <int> dl-selected-q: 1;
+
+    callback command(int);
+    callback nav(int);
+    callback search(string);
+    callback row-action(int, int, int);
+    callback cover-drag(float, int, float);
+    callback cover-wheel(float);
+    callback seek(float, bool);
+    callback set-volume(float, bool);
+    callback setting(int, int);
+    callback directory(int, string) -> bool;
+    callback open-add-to(int, bool);
+    callback cancel-add-to();
+    callback create-playlist(string);
+    callback toggle-add-playlist(int);
+    callback confirm-add-to(bool, bool);
+    callback open-playlist(string);
+    callback delete-playlist(string);
+    in-out property <string> del-confirm-id;
+    in-out property <string> del-confirm-name;
+    in-out property <string> newpl-name: "";
+    in-out property <string> dir-draft: "";
+    callback close-playlist();
+    callback playlist-action(int);
+    callback confirm-unlike(bool);
+    callback queue-clear();
+    callback refresh-favorites();
+    callback open-add-play(int, bool);
+    callback pick-playlist(int);
+    callback confirm-add-play();
+    callback cancel-add-play();
+    callback open-album(int);
+    callback close-album();
+    callback inspect-download(bool, int, bool);
+    callback pick-dl-quality(int);
+    callback confirm-download(int);
+    callback cancel-download-prompt();
+
+    // 目录校验走后台命令。
+    function svdir() { if root.directory(root.folder-kind, root.dir-draft) { root.folder-kind = -1; park.focus(); } else { root.path-error = true; } }
+    // 失焦或空白处提交。
+    function commit-new-pl() {
+        if root.creating-playlist {
+            root.creating-playlist = false;
+            if root.newpl-name != "" {
+                root.create-playlist(root.newpl-name);
+            }
+            root.newpl-name = "";
+            park.focus();
+        }
+    }
+    changed active-route => { if root.active-route != 2 { park.focus(); } }
+    // 聚焦搜索标签与输入框。
+    public function focus-search() { root.active-route = 2; query.focus(); }
+    // 将毫秒格式化为分:秒。
+    pure function tmfmt(ms: int) -> string {
+        let secs = max(0, floor(ms/1000)); let m = floor(secs/60); let s = mod(secs,60);
+        return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+    }
+    keys := FocusScope {
+        width: parent.width; height: parent.height;
+        capture-key-pressed(event) => {
+            if event.modifiers.control && event.text.to-lowercase() == "f" { root.focus-search(); return accept; }
+            if event.text == Key.Escape {
+                root.menu-index = -1; root.folder-kind = -1; root.add-choice-idx = -1;
+                root.dl-choice-open = false; root.creating-playlist = false;
+                if root.add-modal-visible { if root.pick-mode != 0 { root.cancel-add-play(); } else { root.cancel-add-to(); } }
+                if root.dl-modal-visible { root.cancel-download-prompt(); }
+                if root.confirm-unlike-text != "" { root.confirm-unlike(false); }
+                park.focus(); root.command(11); return accept;
+            }
+            return reject;
+        }
+        key-pressed(event) => { if event.text == " " && !query.has-focus && !root.creating-playlist && root.folder-kind < 0 { root.command(0); return accept; } return reject; }
+        // 隐藏输入的焦点接收项。
+        park := FocusScope { x: 0px; y: 0px; width: 1px; height: 1px; }
+    // 选中标签跨过内容顶边。
+    Rectangle {
+        x: 0px; y: 0px; height: 42px; width: parent.width; background: Theme.header; z: 1;
+        for label[index] in ["搜索", "收藏", "设置"] : FolderTab {
+            text: label; index: index; selected: root.active-route == index+2; z: root.active-route == index+2 ? 10 : 3 - index;
+            clicked => { root.active-route = index+2; root.nav(index+2); if index == 0 { query.focus(); } }
+        }
+        Rectangle {
+            x: 0px; y: 0px; width: 146px; height: 44px; z: root.active-route < 2 ? 10 : 4;
+            Path { width: 158px; height: 44px; viewbox-width: 158; viewbox-height: 44; fill: root.active-route < 2 ? Theme.bg : Theme.tab;
+                commands: "M0 44V10Q0 0 10 0H128Q139 0 142 12L150 36Q152 44 158 44Z";
+            }
+            Path { width: 158px; height: 44px; viewbox-width: 158; viewbox-height: 44; fill: transparent; stroke: Theme.edge; stroke-width: 0.8px;
+                commands: "M0.5 44V10Q0.5 0.5 10 0.5H128Q139 0.5 142 12L150 36Q152 43.5 158 43.5";
+            }
+            Rectangle { x: 8px; y: 8px; width: 30px; height: 30px; border-radius: 15px; background: Theme.lip; }
+            Rectangle { x: 8px; y: 7px; width: 30px; height: 30px; border-radius: 15px; background: Theme.btn; border-width: 1px; border-color: Theme.edge; clip: true;
+                if root.avatar-url != "" : Image { width: parent.width; height: parent.height; image-fit: cover; source: MediaArt.cover(root.avatar-url, 64, MediaArt.epoch); }
+                if root.avatar-url == "" : Text { width: parent.width; height: parent.height; text: "K"; color: Theme.ink; font-size: 15px; font-weight: 700; horizontal-alignment: center; vertical-alignment: center; }
+            }
+            Text { x: 46px; y: 10px; width: 92px; height: 24px; text: root.user-name; font-size: 13px; font-weight: 600; color: Theme.ink; overflow: elide; vertical-alignment: center; }
+            TouchArea {
+                property <float> sx: 0;
+                property <float> sy: 0;
+                property <bool> dragged: false;
+                mouse-cursor: pointer;
+                pointer-event(event) => {
+                    if event.kind == PointerEventKind.down && event.button == PointerEventButton.left {
+                        self.sx = self.mouse-x / 1px;
+                        self.sy = self.mouse-y / 1px;
+                        self.dragged = false;
+                    } else if event.kind == PointerEventKind.up && event.button == PointerEventButton.left {
+                        if !self.dragged { root.active-route = 0; root.nav(0); park.focus(); }
+                        self.dragged = false;
+                    } else if event.kind == PointerEventKind.cancel {
+                        self.dragged = false;
+                    }
+                }
+                moved => {
+                    if self.pressed && !self.dragged && (abs(self.mouse-x / 1px - self.sx) > 3 || abs(self.mouse-y / 1px - self.sy) > 3) {
+                        self.dragged = true;
+                        root.command(13);
+                    }
+                }
+            }
+            accessible-role: tab; accessible-label: root.user-name; accessible-item-selected: root.active-route < 2;
+            accessible-action-default => { root.active-route = 0; root.nav(0); park.focus(); }
+        }
+    }
+    Image { x: 317px; y: 21px; width: 14px; height: 14px; source: @image-url("assets/icons/minimize_dark.svg"); colorize: Theme.icon; z: 2; }
+    TouchArea { x: 312px; y: 14px; width: 24px; height: 27px; z: 2; mouse-cursor: pointer; clicked => { root.command(9); } }
+    Image { x: 340px; y: 20px; width: 14px; height: 14px; source: @image-url("assets/icons/close_dark.svg"); colorize: Theme.icon; z: 2; }
+    TouchArea { x: 336px; y: 14px; width: 24px; height: 27px; z: 2; mouse-cursor: pointer; clicked => { root.command(10); } }
+    // 内容区不改底座位置。
+    Rectangle { y: 42px; height: 274px; width: parent.width; clip: true; background: Theme.bg;
+        Rectangle {
+            visible: root.active-route == 0;
+            width: parent.width; height: parent.height;
+            Image { width: 360px; height: 274px; source: root.coverflow-image; }
+            cover-area := TouchArea {
+                enabled: root.active-route == 0;
+                property <float> drag-start: 0;
+                property <float> drag-last: 0;
+                property <bool> dragging: false;
+                moved => {
+                    if self.dragging {
+                        let cur = self.mouse-x / 1px;
+                        root.cover-drag(cur - self.drag-last, 1, cur);
+                        self.drag-last = cur;
+                    }
+                }
+                pointer-event(event) => {
+                    let cur = self.mouse-x / 1px;
+                    if event.kind == PointerEventKind.down && event.button == PointerEventButton.left {
+                        self.drag-start = cur;
+                        self.drag-last = cur;
+                        self.dragging = true;
+                        root.cover-drag(0, 0, cur);
+                    } else if (event.kind == PointerEventKind.up || event.kind == PointerEventKind.cancel) && self.dragging {
+                        self.dragging = false;
+                        root.cover-drag(cur - self.drag-start, 2, cur);
+                        park.focus();
+                    }
+                }
+                scroll-event(event) => { root.cover-wheel(event.delta-y / 1px); return accept; }
+            }
+            remove := RoundIcon {
+                visible: !root.is-guest && root.current-deck-removable && ((cover-area.has-hover && cover-area.mouse-x >= 72px && cover-area.mouse-x <= 288px && cover-area.mouse-y >= 27px && cover-area.mouse-y <= 243px) || remove.hovered);
+                x: 259px; y: 32px; z: 5; icon-size: 12px;
+                icon: @image-url("assets/icons/close_dark.svg");
+                label: "移除封面";
+                clicked => { root.command(14); }
+            }
+        }
+        if root.active-route == 2 && !root.album-open : Rectangle {
+            x: 21px; y: 14px; width: 318px; height: 30px; border-radius: 15px;
+            background: Theme.rail; border-width: 1.4px; border-color: Theme.active;
+            Rectangle { x: 1px; y: 1px; width: parent.width - 2px; height: parent.height - 2px; border-radius: 14px; background: Theme.card; }
+            Image { x: 10px; y: 6px; width: 18px; height: 18px; source: @image-url("assets/icons/search_gray.svg"); colorize: Theme.muted; }
+        }
+        query := TextInput {
+            visible: root.active-route == 2 && !root.album-open; enabled: root.active-route == 2; x: 59px; y: 16px; width: 246px; height: 26px; single-line: true; font-size: 11px; color: Theme.ink; vertical-alignment: center;
+            accepted => { root.search(self.text); park.focus(); }
+        }
+        if root.active-route == 2 && !root.album-open && query.text == "" : Text { x: 59px; y: 16px; width: 240px; height: 26px; text: "搜索歌曲、歌手"; color: Theme.muted; font-size: 11px; vertical-alignment: center; }
+        if root.active-route == 2 && !root.album-open && query.text != "" : RoundIcon {
+            x: 306px; y: 17px; icon-size: 10px;
+            icon: @image-url("assets/icons/close_dark.svg");
+            label: "清空搜索";
+            clicked => { query.text = ""; query.focus(); }
+        }
+        if (root.active-route == 1 || root.active-route == 2 || root.active-route == 3) && root.album-open : Rectangle {
+            x: 12px; y: 4px; width: 336px; height: 28px;
+            RoundIcon {
+                x: 0px; y: 2px;
+                icon: @image-url("assets/icons/back.svg"); label: "返回";
+                clicked => { root.close-album(); park.focus(); }
+            }
+            Text { x: 30px; y: 0px; width: 300px; height: 28px; text: root.album-title; font-size: 12px; font-weight: 600; color: Theme.ink; overflow: elide; vertical-alignment: center; }
+        }
+        if root.active-route == 1 && !root.album-open : Rectangle {
+            x: 12px; y: 4px; width: 336px; height: 28px;
+            Text { x: 4px; width: 250px; height: 28px; text: root.current-deck-title == "" ? "当前播放列表" : root.current-deck-title; font-size: 12px; font-weight: 600; color: Theme.ink; overflow: elide; vertical-alignment: center; }
+            if root.queue-tracks.length > 0 : PillButton { x: 212px; y: 2px; width: 48px; height: 24px; size: 10px; kind: 0; text: "清空"; clicked => { root.queue-clear(); } }
+            Text { x: 260px; width: 72px; height: 28px; y: 0px; text: "" + root.queue-tracks.length + "首"; font-size: 10px; color: Theme.muted; horizontal-alignment: right; vertical-alignment: center; }
+        }
+        Rectangle {
+            visible: root.active-route == 3 && !root.playlist-opened;
+            x: 12px; y: 4px; width: 336px; height: 28px;
+            Text { x: 4px; width: 140px; height: 28px; text: root.favorites-local ? "本地歌单" : "我的歌单"; font-size: 12px; font-weight: 600; color: Theme.ink; vertical-alignment: center; }
+            PillButton {
+                x: 286px; y: 2px; width: 48px; height: 24px; size: 10px; kind: 0; text: "刷新";
+                clicked => { root.refresh-favorites(); }
+            }
+        }
+        if root.active-route == 3 && root.playlist-opened && !root.album-open : Rectangle {
+            x: 12px; y: 4px; width: 336px; height: 28px;
+            RoundIcon {
+                x: 0px; y: 2px;
+                icon: @image-url("assets/icons/back.svg"); label: "返回";
+                clicked => { root.close-playlist(); }
+            }
+            Text { x: 30px; y: 0px; width: root.opened-playlist-is-like ? 236px : 164px; height: 28px; text: root.opened-playlist-title; font-size: 12px; font-weight: 600; color: Theme.ink; overflow: elide; vertical-alignment: center; }
+            if !root.opened-playlist-is-like : PillButton { x: 198px; y: 0px; width: 72px; height: 28px; kind: 0; text: "加入封面流"; clicked => { root.playlist-action(1); } }
+            PillButton { x: 286px; y: 2px; width: 48px; height: 24px; size: 10px; kind: 1; text: "播放歌单"; clicked => { root.playlist-action(0); } }
+        }
+        if root.active-route == 3 && !root.playlist-opened : ListView {
+            x: 12px; y: 34px; width: 336px; height: parent.height - self.y - 6px;
+            for item in root.user-playlists : PlaylistRow {
+                item: item;
+                clicked => { root.open-playlist(item.id); }
+                delete => { root.del-confirm-id = item.id; root.del-confirm-name = item.name; }
+            }
+        }
+        if (root.active-route == 1 || root.active-route == 2 || (root.active-route == 3 && root.playlist-opened)) && !root.album-open : ListView {
+            x: 12px; y: root.active-route == 2 ? 52px : 34px; width: 336px; height: parent.height - self.y - 6px;
+            for track[index] in (root.active-route == 1 ? root.queue-tracks : root.active-route == 2 ? root.search-tracks : root.favorite-tracks) : TrackRow {
+                track: track; index: index; scope: root.active-route;
+                active: root.active-route == 1 && index == root.queue-cursor;
+                in-like: root.active-route == 3 && root.opened-playlist-is-like;
+                action(a, ay) => {
+                    if a == 5 {
+                        root.menu-scope = root.active-route; root.menu-index = index;
+                        root.menu-has-album = track.has-album;
+                        root.menu-y = max(56px, min(190px, ay - 8px));
+                    } else if a == 7 {
+                        root.add-choice-idx = index;
+                        root.add-choice-has-album = track.has-album;
+                        root.add-choice-y = max(56px, min(220px, ay - 6px));
+                    } else {
+                        root.row-action(root.active-route, index, a);
+                    }
+                }
+            }
+        }
+        if root.active-route == 3 && !root.album-open && ((!root.playlist-opened && root.user-playlists.length == 0) || (root.playlist-opened && root.favorite-tracks.length == 0)) : Rectangle {
+            Image { x: 80px; y: 34px; width: 200px; height: 160px; source: Theme.dark ? @image-url("assets/empty-fav-dark.svg") : @image-url("assets/empty-fav-light.svg"); }
+            Text { y: 202px; width: 360px; height: 25px; text: "还没有收藏歌曲"; color: Theme.ink; font-size: 14px; font-weight: 600; horizontal-alignment: center; }
+            TouchArea {
+                x: 80px; y: 34px; width: 200px; height: 160px;
+                Tooltip {
+                    Rectangle {
+                        width: 190px; height: 24px; background: Theme.card; border-radius: 4px; border-width: 1px; border-color: Theme.edge;
+                        Text { text: "点亮爱心，留下喜欢的音乐"; color: Theme.ink; font-size: 11px; horizontal-alignment: center; vertical-alignment: center; }
+                    }
+                }
+            }
+        }
+        if root.active-route == 1 && !root.album-open && root.queue-tracks.length == 0 : Text { width: 360px; height: 274px; text: "播放列表为空"; color: Theme.muted; horizontal-alignment: center; vertical-alignment: center; }
+        if root.active-route == 2 && !root.album-open && root.search-tracks.length == 0 : Text { y: 92px; width: 360px; text: root.busy ? "正在搜索…" : "搜索你喜欢的音乐"; color: Theme.muted; horizontal-alignment: center; }
+        if (root.active-route == 1 || root.active-route == 2 || root.active-route == 3) && root.album-open : ListView {
+            x: 12px; y: 34px; width: 336px; height: parent.height - self.y - 6px;
+            for track[index] in root.album-tracks : TrackRow {
+                track: track; index: index; scope: 4;
+                action(a, ay) => {
+                    if a == 5 {
+                        root.menu-scope = 4; root.menu-index = index;
+                        root.menu-has-album = true;
+                        root.menu-y = max(56px, min(190px, ay - 8px));
+                    } else {
+                        root.row-action(4, index, a);
+                    }
+                }
+            }
+        }
+        if root.active-route == 4 : Flickable {
+            x: 12px; y: 2px; width: 336px; height: 266px; content-height: 428px;
+            Rectangle {
+                x: 0; y: 8px; width: 336px; height: 48px;
+                Rectangle { y: 1.5px; width: parent.width; height: parent.height; border-radius: 8px; background: Theme.lip; }
+                Rectangle {
+                    width: parent.width; height: parent.height; border-radius: 8px;
+                    background: Theme.card; border-width: 1px; border-color: Theme.edge;
+                    Text { x: 12px; y: 5px; width: 120px; height: 19px; text: "账号"; font-size: 13px; font-weight: 600; color: Theme.ink; }
+                    Text { x: 12px; y: 26px; width: 120px; height: 15px; text: root.is-guest ? "未登录" : "已登录"; font-size: 10px; color: Theme.muted; }
+                    PillButton { x: root.is-guest ? 252px : 172px; y: 10px; width: 72px; height: 28px; kind: 0; text: root.is-guest ? "扫码登录" : "退出登录"; clicked => { if root.is-guest { root.active-route = 0; root.nav(0); root.command(12); } else { root.command(7); } } }
+                    if !root.is-guest : PillButton { x: 252px; y: 10px; width: 72px; height: 28px; kind: root.checkin-label == "签到" ? 2 : 0; text: root.checkin-label; enabled: root.checkin-label == "签到"; clicked => { root.command(8); } }
+                }
+            }
+            for label[index] in ["主题", "音质", "关闭时最小化", "桌面歌词", "缓存目录", "下载目录", "随机播放"] : Rectangle {
+                x: 0; y: 64px + index*52px; width: 336px; height: 44px;
+                Rectangle { y: 1.5px; width: parent.width; height: parent.height; border-radius: 8px; background: Theme.lip; }
+                Rectangle {
+                    width: parent.width; height: parent.height; border-radius: 8px;
+                    background: Theme.card; border-width: 1px; border-color: Theme.edge;
+                    Image { x: 12px; y: 12px; width: 20px; height: 20px; colorize: Theme.icon; source: index == 0 ? @image-url("assets/icons/palette_dark.svg") : index == 1 ? @image-url("assets/icons/music_dark.svg") : index == 2 ? @image-url("assets/icons/monitor_dark.svg") : index == 3 ? @image-url("assets/icons/lyrics_dark.svg") : index == 6 ? @image-url("assets/icons/shuffle_gray.svg") : @image-url("assets/icons/folder_dark.svg"); }
+                    Text { x: 43px; y: 0px; width: 105px; height: 44px; text: label; font-size: 13px; font-weight: 600; color: Theme.ink; vertical-alignment: center; }
+                    if index < 2 : Segment { x: 141px; y: 9px; labels: index == 0 ? ["跟随系统", "浅色", "深色"] : ["高品质", "无损", "Hires无损"]; selected: index == 0 ? root.theme-idx : root.quality-idx; picked(v) => { root.setting(index,v); } }
+                    if index == 2 || index == 3 || index == 6 : Switch {
+                        x: 286px; y: 11px;
+                        checked: index == 2 ? root.close-tray : index == 3 ? root.desktop-lyrics : root.shuffle;
+                        label: label;
+                        tip: index == 2 ? "关闭窗口后继续播放" : index == 3 ? "在桌面显示当前歌词" : "";
+                        toggled => { root.setting(index, self.checked ? 0 : 1); }
+                    }
+                    if index == 4 || index == 5 : Rectangle {
+                        x: 168px; y: 10px; width: 104px; height: 24px; border-radius: 4px;
+                        background: Theme.rail; border-width: 1px; border-color: Theme.rail-edge;
+                        Text { x: 7px; width: 90px; height: 24px; text: index == 4 ? root.cache-dir : root.download-dir; color: Theme.muted; font-size: 10px; overflow: elide; vertical-alignment: center; }
+                    }
+                    if index == 4 || index == 5 : PillButton { x: 278px; y: 10px; width: 48px; height: 24px; size: 10px; kind: 0; text: "更改"; clicked => { root.path-error = false; root.dir-draft = index == 4 ? (root.cache-dir == "默认缓存" ? "" : root.cache-dir) : (root.download-dir == "系统下载目录" ? "" : root.download-dir); root.folder-kind = index; } }
+                }
+            }
+        }
+    }
+    // 底部曲名，悬停显示歌手。
+    Text { x: 24px; y: 316px; width: 312px; height: 22px; text: root.is-guest && root.qr-label != "" ? root.qr-label : root.track-title; color: Theme.ink; font-size: 18px; font-weight: 600; overflow: elide; horizontal-alignment: center; }
+    TouchArea { x: 24px; y: 316px; width: 312px; height: 22px; mouse-cursor: pointer; clicked => { root.active-route = 0; root.nav(0); park.focus(); } Tooltip { Rectangle { width: 220px; height: 24px; background: Theme.card; border-radius: 4px; border-width: 1px; border-color: Theme.edge; Text { text: root.is-guest ? root.qr-label : (root.artist-name != "" ? root.artist-name : root.current-deck-title); color: Theme.ink; font-size: 11px; horizontal-alignment: center; vertical-alignment: center; overflow: elide; } } } }
+    Text { x: 12px; y: 341px; width: 30px; height: 22px; text: root.tmfmt(root.position-ms); font-family: "Segoe UI"; font-size: 11px; font-weight: 600; color: Theme.icon; vertical-alignment: center; }
+    SeekBar { x: 52px; y: 341px; width: 256px; value: root.position-ms; maximum: root.duration-ms; changed(v,done) => { root.seek(v,done); } }
+    Text { x: 318px; y: 341px; width: 30px; height: 22px; text: root.tmfmt(root.duration-ms); font-family: "Segoe UI"; font-size: 11px; font-weight: 600; color: Theme.icon; vertical-alignment: center; horizontal-alignment: right; }
+    IconButton { x: 22px; y: 379px; width: 46px; height: 46px; icon: root.is-favorite ? @image-url("assets/icons/heart_red.svg") : @image-url("assets/icons/heart_gray.svg"); ink: root.is-favorite ? (Theme.dark ? #ff8190 : #cc4660) : Theme.icon; label: "喜欢"; clicked => { root.command(3); } }
+    IconButton { x: 77px; y: 372px; width: 60px; height: 60px; kind: 1; icon: @image-url("assets/icons/prev_white.svg"); ink: #ffffff; icon-size: 26px; label: "上一首"; clicked => { root.command(1); } }
+    IconButton { x: 142px; y: 364px; width: 76px; height: 76px; kind: 2; icon: root.is-playing ? @image-url("assets/icons/pause_white.svg") : @image-url("assets/icons/play_white.svg"); ink: #ffffff; icon-size: 31px; label: root.is-playing ? "暂停" : "播放"; clicked => { park.focus(); root.command(0); } }
+    IconButton { x: 223px; y: 372px; width: 60px; height: 60px; kind: 1; icon: @image-url("assets/icons/next_white.svg"); ink: #ffffff; icon-size: 26px; label: "下一首"; clicked => { root.command(2); } }
+    IconButton { x: 290px; y: 379px; width: 46px; height: 46px; icon: @image-url("assets/icons/repeat_gray.svg"); ink: root.repeat-mode == 0 ? Theme.icon : Theme.signal; label: root.repeat-mode == 0 ? "顺序播放" : root.repeat-mode == 1 ? "列表循环" : "单曲循环"; clicked => { root.command(4); } Text { visible: root.repeat-mode == 2; x: 19px; y: 15px; text: "1"; color: Theme.signal; font-size: 10px; font-weight: 700; } }
+    Image { x: 37px; y: 448px; width: 16px; height: 16px; source: @image-url("assets/icons/volume_gray.svg"); colorize: Theme.icon; }
+    SeekBar { x: 64px; y: 445px; width: 200px; value: root.volume; volume: true; changed(v,done) => { root.set-volume(v,done); } }
+    IconButton { x: 277px; y: 441px; icon: @image-url("assets/icons/download_gray.svg"); icon-size: 18px; label: "下载"; clicked => { root.dl-choice-open = !root.dl-choice-open; } }
+    IconButton { x: 311px; y: 441px; icon: @image-url("assets/icons/playlist_gray.svg"); icon-size: 18px; ink: root.active-route == 1 ? Theme.signal : Theme.icon; label: "播放列表"; clicked => { root.active-route = root.active-route == 1 ? 0 : 1; root.nav(root.active-route); } }
+    // 搜索行+气泡两选项。
+    if root.add-choice-idx >= 0 : Rectangle {
+        background: #00000020; TouchArea { clicked => { root.add-choice-idx = -1; } }
+        MenuPanel {
+            x: 224px; y: root.add-choice-y; width: 112px; height: 64px;
+            TextButton {
+                x: 4px; y: 4px; width: 104px; height: 27px; hover-pill: true; text: "本单曲";
+                clicked => { let idx = root.add-choice-idx; root.add-choice-idx = -1; root.open-add-to(idx, false); }
+            }
+            TextButton {
+                x: 4px; y: 33px; width: 104px; height: 27px; hover-pill: true; text: "本专辑"; enabled: root.add-choice-has-album;
+                clicked => { let idx = root.add-choice-idx; root.add-choice-idx = -1; root.open-add-to(idx, true); }
+            }
+        }
+    }
+    // 添加至弹窗与新建歌单。
+    if root.add-modal-visible : DialogCard {
+        card-x: 35px; card-y: 58px; card-w: 290px; card-h: 364px;
+        title: root.pick-mode == 1 ? "添加至歌单并插播" : root.pick-mode == 2 ? "添加至歌单并续播" : "添加至";
+        dismissed => { if root.creating-playlist { root.commit-new-pl(); } else { root.cancel-add-to(); } }
+        card-clicked => { if root.creating-playlist { root.commit-new-pl(); } }
+        Text { x: 16px; y: 36px; width: 258px; height: 16px; text: root.add-modal-title; color: Theme.muted; font-size: 10px; overflow: elide; }
+        Rectangle { x: 16px; y: 56px; width: 258px; height: 1px; background: Theme.rail; }
+                Flickable {
+                    x: 16px; y: 60px; width: 258px; height: 252px;
+                    content-height: root.pick-mode != 0 ? max(252px, (1 + root.add-playlists.length) * 34px + 12px) : max(252px, (3 + root.add-playlists.length) * 34px + 12px);
+                    TouchArea {
+                        width: parent.width;
+                        height: parent.content-height;
+                        clicked => { if root.creating-playlist { root.commit-new-pl(); } }
+                    }
+                    VerticalLayout {
+                        spacing: 2px;
+                        if root.pick-mode == 0 : CheckRow {
+                            label: "添加至CoverFlow"; checked: root.add-sel-flow;
+                            toggled => { if root.creating-playlist { root.commit-new-pl(); } root.add-sel-flow = !root.add-sel-flow; }
+                        }
+                        if root.pick-mode == 0 : CheckRow {
+                            label: "添加至Like"; checked: root.add-sel-like;
+                            toggled => { if root.creating-playlist { root.commit-new-pl(); } root.add-sel-like = !root.add-sel-like; }
+                        }
+                        for pl[idx] in root.add-playlists : CheckRow {
+                            label: pl.name; checked: root.pick-mode != 0 ? idx == root.pick-selected : pl.selected;
+                            toggled => {
+                                if root.pick-mode != 0 {
+                                    root.pick-selected = idx;
+                                    root.pick-playlist(idx);
+                                } else {
+                                    if root.creating-playlist { root.commit-new-pl(); }
+                                    root.toggle-add-playlist(idx);
+                                }
+                            }
+                        }
+                        Rectangle {
+                            height: 34px;
+                            if root.pick-mode == 0 && !root.creating-playlist : Rectangle {
+                                width: parent.width; height: 32px; border-radius: 4px;
+                                background: newpl-ta.has-hover ? Theme.hover : transparent;
+                                Image { x: 7px; y: 8px; width: 15px; height: 15px; source: @image-url("assets/icons/add.svg"); colorize: Theme.signal; }
+                                Text { x: 30px; y: 0px; width: parent.width - 36px; height: 32px; text: "新建歌单"; color: Theme.signal; font-size: 12px; font-weight: 600; vertical-alignment: center; }
+                                newpl-ta := TouchArea {
+                                    mouse-cursor: pointer;
+                                    clicked => {
+                                        root.creating-playlist = true;
+                                        root.newpl-name = "";
+                                        new-pl-input.text = "";
+                                        new-pl-input.focus();
+                                    }
+                                }
+                            }
+                            Rectangle {
+                                visible: root.creating-playlist;
+                                x: 4px; y: 2px; width: parent.width - 8px; height: 28px; border-radius: 8px;
+                                background: Theme.rail; border-width: 1px; border-color: Theme.active;
+                            }
+                            new-pl-input := TextInput {
+                                visible: root.creating-playlist; enabled: root.add-modal-visible;
+                                x: 12px; y: 3px; width: parent.width - 24px; height: 26px;
+                                color: Theme.ink; font-size: 11px; single-line: true; vertical-alignment: center;
+                                changed text => { root.newpl-name = self.text; }
+                                accepted => { root.commit-new-pl(); }
+                                changed has-focus => {
+                                    if !self.has-focus && root.creating-playlist {
+                                        root.commit-new-pl();
+                                    }
+                                }
+                            }
+                            if root.creating-playlist && new-pl-input.text == "" : Text {
+                                x: 12px; y: 3px; width: parent.width - 24px; height: 26px;
+                                text: "输入歌单标题"; color: Theme.muted; font-size: 11px; vertical-alignment: center;
+                            }
+                        }
+                    }
+                }
+                Rectangle { x: 16px; y: 316px; width: 258px; height: 1px; background: Theme.rail; }
+        PillButton { x: 118px; y: 324px; width: 72px; height: 28px; kind: 0; text: "取消"; clicked => { if root.pick-mode != 0 { root.cancel-add-play(); } else { root.creating-playlist = false; park.focus(); root.cancel-add-to(); } } }
+        PillButton { x: 202px; y: 324px; width: 72px; height: 28px; kind: 1; text: "确定"; clicked => { if root.pick-mode != 0 { root.confirm-add-play(); } else { if root.creating-playlist { root.commit-new-pl(); } root.confirm-add-to(root.add-sel-flow, root.add-sel-like); } } }
+    }
+    // 取消喜欢二次确认弹窗。
+    if root.confirm-unlike-text != "" : DialogCard {
+        title: "移除歌曲";
+        dismissed => { root.confirm-unlike(false); }
+        Text { x: 16px; y: 36px; width: 244px; height: 42px; text: root.confirm-unlike-text; color: Theme.muted; font-size: 12px; wrap: word-wrap; }
+        PillButton { x: 104px; y: 92px; width: 72px; height: 28px; kind: 0; text: "取消"; clicked => { root.confirm-unlike(false); } }
+        PillButton { x: 188px; y: 92px; width: 72px; height: 28px; kind: 2; text: "确认"; clicked => { root.confirm-unlike(true); } }
+    }
+    // 删除歌单二次确认弹窗。
+    if root.del-confirm-id != "" : DialogCard {
+        title: "删除歌单";
+        dismissed => { root.del-confirm-id = ""; }
+        Text { x: 16px; y: 36px; width: 244px; height: 42px; text: "确认删除歌单「" + root.del-confirm-name + "」吗？云端歌曲不受影响。"; color: Theme.muted; font-size: 12px; wrap: word-wrap; }
+        PillButton { x: 104px; y: 92px; width: 72px; height: 28px; kind: 0; text: "取消"; clicked => { root.del-confirm-id = ""; } }
+        PillButton { x: 188px; y: 92px; width: 72px; height: 28px; kind: 2; text: "删除"; clicked => { root.delete-playlist(root.del-confirm-id); root.del-confirm-id = ""; } }
+    }
+    // 下载气泡两选项。
+    if root.dl-choice-open : Rectangle {
+        background: #00000020; TouchArea { clicked => { root.dl-choice-open = false; } }
+        MenuPanel {
+            x: 214px; y: 370px; width: 124px; height: 64px;
+            TextButton {
+                x: 4px; y: 4px; width: 116px; height: 27px; hover-pill: true; text: "本单曲";
+                clicked => { root.dl-choice-open = false; root.inspect-download(false, -1, false); }
+            }
+            TextButton {
+                x: 4px; y: 33px; width: 116px; height: 27px; hover-pill: true;
+                text: root.current-collection-is-album ? "本专辑" : "本歌单";
+                enabled: root.current-has-collection;
+                clicked => { root.dl-choice-open = false; root.inspect-download(true, -1, root.current-collection-is-album); }
+            }
+        }
+    }
+    // 「下载品质」二级选择弹窗。
+    if root.dl-modal-visible : DialogCard {
+        card-y: 120px; card-h: 232px;
+        title: "下载品质";
+        dismissed => { root.cancel-download-prompt(); }
+        Text { x: 16px; y: 36px; width: 244px; height: 16px; text: root.dl-modal-title; color: Theme.muted; font-size: 10px; overflow: elide; }
+        Rectangle { x: 16px; y: 56px; width: 244px; height: 1px; background: Theme.rail; }
+        VerticalLayout {
+            x: 16px; y: 64px; width: 244px; height: 104px; spacing: 4px;
+            for q in root.dl-qualities : CheckRow {
+                label: q.label; checked: q.selected;
+                toggled => { root.dl-selected-q = q.code; root.pick-dl-quality(q.code); }
+            }
+        }
+        PillButton { x: 104px; y: 192px; width: 72px; height: 28px; kind: 0; text: "取消"; clicked => { root.cancel-download-prompt(); } }
+        PillButton { x: 188px; y: 192px; width: 72px; height: 28px; kind: 1; text: "确定"; clicked => { root.confirm-download(root.dl-selected-q); } }
+    }
+    // 行菜单浮层。
+    if root.menu-index >= 0 : Rectangle {
+        background: #00000030; TouchArea { clicked => { root.menu-index = -1; } }
+        MenuPanel {
+            x: 222px; y: root.menu-y; width: 126px; height: root.menu-scope == 2 ? 182px : (root.menu-scope == 1 || (root.menu-scope == 3 && !root.opened-playlist-is-like)) ? 95px : 66px;
+            if root.menu-scope == 2 : Rectangle {
+                width: parent.width; height: parent.height;
+                for label[index] in ["添加至歌单并插播", "添加至歌单并续播", "下载单曲", "下载专辑", "下载歌词", "查看专辑"] : TextButton {
+                    hover-pill: true;
+                    enabled: (index != 1 && index != 3 && index != 5) || root.menu-has-album;
+                    x: 4px; y: 4px + index*29px; width: 118px; height: 28px; text: label;
+                    clicked => {
+                        let idx = root.menu-index;
+                        root.menu-index = -1;
+                        if index == 0 { root.open-add-play(idx, true); }
+                        else if index == 1 { root.open-add-play(idx, false); }
+                        else if index == 2 { root.inspect-download(false, idx, false); }
+                        else if index == 3 { root.inspect-download(false, idx, true); }
+                        else if index == 4 { root.row-action(2, idx, 8); }
+                        else { root.open-album(idx); }
+                    }
+                }
+            }
+            if root.menu-scope == 1 : Rectangle {
+                width: parent.width; height: parent.height;
+                for label[index] in ["下载", "查看专辑", "移出队列"] : TextButton {
+                    hover-pill: true;
+                    x: 4px; y: 4px + index*29px; width: 118px; height: 28px; text: label;
+                    clicked => { root.row-action(root.menu-scope, root.menu-index, index == 0 ? 4 : index == 1 ? 9 : 6); root.menu-index = -1; }
+                }
+            }
+            if root.menu-scope == 3 || root.menu-scope == 4 : Rectangle {
+                width: parent.width; height: parent.height;
+                for label[index] in ["下载", "查看专辑", "从歌单删除"] : TextButton {
+                    visible: index < 2 || (root.menu-scope == 3 && !root.opened-playlist-is-like);
+                    hover-pill: true;
+                    x: 4px; y: 4px + index*29px; width: 118px; height: 28px; text: label;
+                    clicked => { root.row-action(root.menu-scope, root.menu-index, index == 0 ? 4 : index == 1 ? 9 : 7); root.menu-index = -1; }
+                }
+            }
+        }
+    }
+    // 目录编辑器不用Shell。
+    if root.folder-kind >= 0 : DialogCard {
+        card-x: 35px; card-y: 166px; card-w: 290px; card-h: 144px;
+        title: root.folder-kind == 4 ? "更改缓存目录" : "更改下载目录";
+        dismissed => { root.folder-kind = -1; park.focus(); }
+        Rectangle {
+            x: 16px; y: 40px; width: 258px; height: 30px; border-radius: 15px;
+            background: Theme.rail; border-width: 1px; border-color: root.path-error ? #d15f65 : Theme.rail-edge;
+        }
+        dir-input := TextInput {
+            x: 26px; y: 42px; width: 238px; height: 26px;
+            color: Theme.ink; font-size: 11px; single-line: true; vertical-alignment: center;
+            text <=> root.dir-draft;
+            property <int> focus-epoch: root.folder-kind;
+            changed focus-epoch => { if root.folder-kind >= 0 { self.focus(); } }
+            accepted => { root.svdir(); }
+        }
+        Text { x: 16px; y: 76px; width: 258px; height: 17px; text: root.path-error ? "请输入完整目录路径" : "输入绝对路径"; font-size: 10px; color: root.path-error ? #d15f65 : Theme.muted; }
+        PillButton { x: 118px; y: 104px; width: 72px; height: 28px; kind: 0; text: "取消"; clicked => { root.folder-kind = -1; park.focus(); } }
+        PillButton { x: 202px; y: 104px; width: 72px; height: 28px; kind: 1; text: "保存"; clicked => { root.svdir(); } }
+    }
+    if root.notice != "" : Rectangle {
+        x: 12px; y: 292px; width: 336px; height: 22px; z: 20;
+        Rectangle { y: 1.5px; width: parent.width; height: parent.height; border-radius: 4px; background: Theme.lip; }
+        Rectangle { width: parent.width; height: parent.height; border-radius: 4px; background: Theme.card; border-width: 1px; border-color: Theme.edge;
+            Text { x: 10px; width: 316px; height: 22px; text: root.notice; color: Theme.ink; font-size: 10px; overflow: elide; vertical-alignment: center; }
+        }
+    }
+    }
+}
+// 开启后创建歌词窗。
+export component LyricWindow inherits Window {
+    title: "KoDog Lite 歌词"; no-frame: true; always-on-top: true;
+    width: 560px; height: 64px; background: #101c24;
+    in property <string> line;
+    // 实心窗口加系统圆角。
+    Rectangle {
+        width: parent.width; height: parent.height;
+        background: @linear-gradient(180deg, #1e303b 0%, #101c24 100%);
+        Rectangle {
+            x: 18px; y: 1px; width: parent.width - 36px; height: 1px;
+            background: #ffffff1c;
+        }
+        Rectangle {
+            width: parent.width; height: parent.height; border-width: 1px; border-color: #00b5d43d; border-radius: 8px;
+        }
+        Image {
+            x: 20px; y: 22px; width: 20px; height: 20px;
+            source: @image-url("assets/icons/music_dark.svg"); colorize: #00b5d4;
+        }
+        Text {
+            x: 50px; y: 0; width: parent.width - 66px; height: parent.height;
+            text: root.line == "" ? "暂无歌词" : root.line;
+            color: root.line == "" ? #8ba3b0 : #ecf9fd;
+            font-family: "Microsoft YaHei UI";
+            font-size: root.line == "" ? 15px : 21px;
+            font-weight: root.line == "" ? 400 : 600;
+            horizontal-alignment: center; vertical-alignment: center; overflow: elide;
+        }
+    }
+}

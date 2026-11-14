@@ -1,0 +1,9 @@
+// 列表图片仅按可见行加载。
+export struct TrackItem { title: string, artist: string, cover: string, duration: string, has-album: bool }
+export struct PlaylistItem { id: string, name: string, cover: string, count: string, is-like: bool }
+export struct AddPlaylistItem { name: string, selected: bool }
+export struct QualityItem { code: int, label: string, selected: bool }
+export global MediaArt {
+    in-out property <int> epoch;
+    pure callback cover(string, int, int) -> image;
+}

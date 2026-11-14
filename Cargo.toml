@@ -1,0 +1,71 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/core",
+    "apps/desktop",
+    "cli",
+]
+
+[workspace.package]
+version = "0.1.1"
+edition = "2024"
+rust-version = "1.92"
+license = "MIT"
+
+[workspace.dependencies]
+kugou-core = { path = "crates/core" }
+
+# Network & serialization
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "stream", "blocking", "system-proxy"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+url = "2"
+
+# Storage
+rusqlite = { version = "0.40", features = ["bundled"] }
+toml = "0.8"
+
+# Audio
+symphonia = { version = "0.6", default-features = false, features = [
+    "mp3", "flac", "aac", "vorbis", "pcm", "adpcm",
+    "ogg", "isomp4", "wav", "aiff",
+    "id3v1", "id3v2", "ape",
+] }
+cpal = "0.18"
+rubato = "5"
+
+# Crypto & signature
+md-5 = "0.10"
+aes = "0.8"
+cipher = { version = "0.4", features = ["alloc", "block-padding"] }
+base64 = "0.22"
+rand = "0.8"
+uuid = { version = "1", features = ["v4"] }
+num-bigint = "0.4"
+zeroize = "1"
+
+# Diagnostics
+thiserror = "2"
+tracing = "0.1"
+
+# UI
+slint = { version = "=1.18.1", default-features = false, features = ["std", "backend-winit", "renderer-software", "software-renderer-path", "accessibility", "raw-window-handle-06", "compat-1-18"] }
+slint-build = "=1.18.1"
+unicode-segmentation = "1"
+raw-window-handle = "0.6"
+qrcode = { version = "=0.14.1", default-features = false }
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Graphics_Dwm", "Win32_Graphics_Gdi", "Win32_UI_Controls", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_System_LibraryLoader", "Win32_Security_Cryptography", "Win32_System_Com", "Win32_System_SystemInformation", "Win32_Storage_FileSystem"] }
+image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
+
+# CLI
+clap = { version = "4", features = ["derive"] }
+
+[profile.release]
+opt-level = "s"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[patch.crates-io]
+i-slint-renderer-software = { path = "vendor/slint-renderer-software" }

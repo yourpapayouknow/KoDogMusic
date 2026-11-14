@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+     width="1024" height="1024" viewBox="0 0 1024 1024"
+     role="img" aria-labelledby="title desc">
+  <title id="title">KoDog Lite</title>
+  <desc id="desc">Minimal dog-head and eighth-note mark. Hand-refined, closed cubic Bezier paths. Editable solid-color vector artwork.</desc>
+
+  
+
+  <g id="mark" inkscape:label="Dog and music note">
+    <path id="floppy-ear" inkscape:label="Orange ear" fill="#FF925B"
+      d="M 212,471
+         C 252,417 302,360 350,349
+         C 398,336 446,371 484,411
+         C 422,443 354,504 309,550
+         C 280,569 245,567 224,552
+         C 196,534 198,496 212,471 Z"/>
+
+    <path id="dog-head" inkscape:label="Ink silhouette and face negative space"
+          fill="#102F40" fill-rule="evenodd"
+      d="M 132,669
+         C 134,621 160,596 201,592
+         C 256,585 284,591 311,542
+         C 343,482 405,417 464,405
+         C 508,390 555,412 610,428
+         C 659,445 722,461 762,481
+         L 762,647
+         C 762,741 752,775 715,823
+         C 660,890 602,893 499,893
+         L 397,893
+         C 328,893 273,867 222,827
+         C 164,782 127,728 132,669 Z
+
+         M 262,616
+         C 298,609 314,601 332,567
+         C 352,532 375,491 419,482
+         C 465,469 491,497 505,537
+         C 522,606 542,657 600,691
+         C 607,695 608,697 606,710
+         C 602,758 566,806 529,834
+         C 485,868 436,861 390,860
+         C 378,860 377,855 382,845
+         C 389,826 396,805 396,796
+         C 396,792 393,791 388,793
+         C 352,801 333,806 317,801
+         C 245,785 202,765 180,703
+         C 175,691 178,694 189,699
+         C 216,713 242,705 260,687
+         C 282,665 279,640 265,620
+         C 263,618 261,618 262,616 Z"/>
+
+    <path id="music-ear" inkscape:label="Cyan eighth note and raised ear" fill="#00B5D4"
+      d="M 682,231
+         C 681,181 720,153 763,160
+         C 815,166 872,191 899,208
+         C 928,228 945,252 940,281
+         C 932,326 911,354 882,355
+         C 838,357 794,330 763,311
+         C 761,309 760,310 760,314
+         L 763,463
+         C 764,529 750,578 717,617
+         C 684,653 642,657 601,630
+         C 565,607 544,567 531,530
+         C 514,480 538,440 583,430
+         C 611,421 639,433 659,415
+         C 675,402 682,386 682,367 Z"/>
+
+    <path id="smiling-eye" inkscape:label="Smiling eye" fill="#102F40"
+      d="M 368,614
+         C 365,591 387,567 412,562
+         C 453,552 485,580 494,605
+         C 499,625 488,637 476,635
+         C 465,634 459,627 458,615
+         C 456,594 417,592 408,613
+         C 404,625 400,634 386,635
+         C 373,635 366,627 368,614 Z"/>
+  </g>
+</svg>
+
